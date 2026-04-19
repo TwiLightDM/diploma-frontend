@@ -13,9 +13,9 @@ export const authApi = {
     login: (email: string, password: string) =>
         api.post<AuthResponse>(`${AUTH}/login`, { email, password }),
 
-    signup: (fullName: string, email: string, password: string) =>
+    signup: (full_name: string, email: string, password: string) =>
         api.post<AuthResponse>(`${AUTH}/signup`, {
-            fullName,
+            full_name,
             email,
             password,
         }),

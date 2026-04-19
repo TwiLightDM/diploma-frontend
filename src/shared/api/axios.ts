@@ -20,7 +20,7 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-    (response) => response, // ✅ исправлено: параметр называется response, не config
+    (response) => response,
     async (error: AxiosError) => {
         const originalRequest = error.config as CustomRequestConfig;
 

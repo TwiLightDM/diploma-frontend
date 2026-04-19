@@ -38,8 +38,9 @@ const SignUpPage = () => {
         }
 
         try {
-            await authApi.signup(fullName, email, password);
-
+            const response = await authApi.signup(fullName, email, password);
+            localStorage.setItem("access_token", response.data.access_token);
+            localStorage.setItem("refresh_token", response.data.refresh_token);
             navigate("/", { replace: true });
         } catch (err: unknown) {
             let message = "";
