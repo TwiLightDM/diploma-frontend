@@ -8,13 +8,14 @@ export interface ModuleResponse {
     description: string;
     position: number;
     course_id: string;
+    amount_of_lessons: number;
 }
 
 export interface ModuleListResponse {
     modules: ModuleResponse[];
 }
 
-export const ModuleApi = {
+export const moduleApi = {
     post: (title: string, description: string, course_id: string) =>
         api.post<ModuleResponse>(`${MODULES}`, {
             title,

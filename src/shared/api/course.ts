@@ -6,9 +6,11 @@ export interface CourseResponse {
     id: string;
     title: string;
     description: string;
-    access_type: string;
+    access_type: "public" | "group_only";
     published_at: string;
     owner_id: string;
+    amount_of_modules: number;
+    amount_of_lessons: number;
 }
 
 export interface CourseListResponse {
@@ -17,7 +19,7 @@ export interface CourseListResponse {
 
 export const courseApi = {
     post: (title: string, description: string, access_type: string) =>
-        api.post<CourseResponse>(`${COURSES}/create`, {
+        api.post<CourseResponse>(`${COURSES}`, {
             title,
             description,
             access_type,
@@ -32,15 +34,15 @@ export const courseApi = {
     getById: (id: string) =>
         api.get<CourseResponse>(`${COURSES}/${id}`),
 
-    patch: (id: string, title: string, description: string, access_type: string) =>
-        api.patch<CourseResponse>(`${COURSES}/${id}`, {
-            title,
-            description,
-            access_type,
-        }),
+    patch: (id: string, data: Partial<{
+        title: string;
+        description: string;
+        access_type: string
+    }>) =>
+        api.patch<CourseResponse>(`${COURSES}/${id}`, data),
 
     patchPublish: (id: string) =>
-        api.patch<CourseResponse>(`${COURSES}/${id}`),
+        api.patch<CourseResponse>(`${COURSES}/${id}/publish`),
 
     delete: (id: string) =>
         api.delete<void>(`${COURSES}/${id}`),

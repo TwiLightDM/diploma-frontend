@@ -1,7 +1,8 @@
+// HomePage.tsx
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { userApi, type UserResponse } from "@/shared/api/user";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { courseApi, type CourseResponse } from "@/shared/api/course";
+import type { UserResponse } from "@/shared/api/user";
 import "./HomePage.css";
 
 const formatDescription = (text: string | undefined): string => {
@@ -11,21 +12,17 @@ const formatDescription = (text: string | undefined): string => {
 
 const HomePage = () => {
     const navigate = useNavigate();
-    const [user, setUser] = useState<UserResponse | null>(null);
+    const { user } = useOutletContext<{ user: UserResponse }>();
     const [courses, setCourses] = useState<CourseResponse[]>([]);
     const [loading, setLoading] = useState(true);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const userRes = await userApi.getMe();
-                setUser(userRes.data);
-
-                if (userRes.data.role === "student") {
+                if (user.role === "student") {
                     const coursesRes = await courseApi.getAll();
                     setCourses(coursesRes.data.courses || []);
-                } else if (userRes.data.role === "teacher") {
+                } else if (user.role === "teacher") {
                     const coursesRes = await courseApi.getMy();
                     setCourses(coursesRes.data.courses || []);
                 }
@@ -37,17 +34,10 @@ const HomePage = () => {
         };
 
         fetchData();
-    }, []);
+    }, [user]);
 
-    const handleLogout = () => {
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        navigate("/login");
-    };
-
-    const handleProfile = () => {
-        navigate("/profile");
-        setDropdownOpen(false);
+    const handleCreateCourse = () => {
+        navigate("/courses/create");
     };
 
     if (loading) {
@@ -59,55 +49,20 @@ const HomePage = () => {
         );
     }
 
-    if (!user) return null;
-
     return (
         <div className="home-container">
-            <header className="home-header">
-                <div className="header-left">
-                    <h1 className="logo">Сервис курсов</h1>
-                </div>
-                <div className="header-right">
-                    <div className="user-info">
-                        <span className="user-name">{user.full_name}</span>
-                        <div
-                            className="avatar"
-                            onClick={() => setDropdownOpen(!dropdownOpen)}
-                        >
-                            {user.full_name.charAt(0).toUpperCase()}
-                        </div>
-                    </div>
-
-                    {dropdownOpen && (
-                        <>
-                            <div
-                                className="dropdown-overlay"
-                                onClick={() => setDropdownOpen(false)}
-                            />
-                            <div className="dropdown-menu">
-                                <button
-                                    className="dropdown-item"
-                                    onClick={handleProfile}
-                                >
-                                    👤 Перейти в профиль
-                                </button>
-                                <button
-                                    className="dropdown-item logout"
-                                    onClick={handleLogout}
-                                >
-                                    🚪 Выйти из аккаунта
-                                </button>
-                            </div>
-                        </>
-                    )}
-                </div>
-            </header>
-
             <main className="home-main">
                 <div className="courses-section">
-                    <h2 className="section-title">
-                        {user.role === "student" ? "Доступные курсы" : "Мои курсы"}
-                    </h2>
+                    <div className="section-header">
+                        <h2 className="section-title">
+                            {user.role === "student" ? "Доступные курсы" : "Мои курсы"}
+                        </h2>
+                        {user.role === "teacher" && (
+                            <button onClick={handleCreateCourse} className="create-course-button">
+                                Создать курс
+                            </button>
+                        )}
+                    </div>
 
                     {courses.length === 0 ? (
                         <div className="empty-state">
@@ -128,13 +83,30 @@ const HomePage = () => {
                                         ))}
                                     </div>
 
+                                    <div className="course-stats">
+                                        <div className="stat-item">
+                                            <span className="stat-icon">📚</span>
+                                            <span className="stat-value">
+                                                {course.amount_of_modules || 0} модулей
+                                            </span>
+                                        </div>
+                                        <div className="stat-item">
+                                            <span className="stat-icon">📝</span>
+                                            <span className="stat-value">
+                                                {course.amount_of_lessons || 0} уроков
+                                            </span>
+                                        </div>
+                                    </div>
+
                                     <div className="course-meta">
                                         <span className={`access-badge ${course.access_type === 'public' ? 'public' : 'private'}`}>
                                             {course.access_type === 'public' ? 'Публичный' : 'Приватный'}
                                         </span>
-                                        <span className="publish-date">
-                                            📅 {new Date(course.published_at).toLocaleDateString('ru-RU')}
-                                        </span>
+                                        {course.published_at && (
+                                            <span className="publish-date">
+                                                📅 {new Date(course.published_at).toLocaleDateString('ru-RU')}
+                                            </span>
+                                        )}
                                     </div>
                                     <button
                                         className="course-button"
