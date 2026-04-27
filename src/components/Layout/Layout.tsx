@@ -1,4 +1,3 @@
-// components/Layout/Layout.tsx
 import { useEffect, useState } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { userApi, type UserResponse } from "@/shared/api/user";
@@ -17,7 +16,6 @@ const Layout = () => {
                 setUser(userRes.data);
             } catch (error) {
                 console.error("Failed to fetch user:", error);
-                // Если не авторизован, перенаправляем на логин
                 navigate("/login");
             } finally {
                 setLoading(false);

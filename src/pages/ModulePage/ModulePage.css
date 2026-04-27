@@ -1,15 +1,10 @@
-.course-page-container {
-    min-height: 100vh;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.course-page-content {
+.module-page-content {
     max-width: 1400px;
     margin: 0 auto;
     padding: 48px 32px;
 }
 
-.course-header {
+.module-header {
     background: white;
     border-radius: 24px;
     padding: 40px;
@@ -17,14 +12,11 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-.course-header-main {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+.module-header-main {
     margin-bottom: 32px;
 }
 
-.course-page-title {
+.module-page-title {
     font-size: 36px;
     font-weight: 700;
     color: #1e293b;
@@ -32,13 +24,30 @@
     line-height: 1.2;
 }
 
-.course-info {
+.module-title-input {
+    font-size: 36px;
+    font-weight: 700;
+    color: #1e293b;
+    padding: 8px 0;
+    border: none;
+    border-bottom: 2px solid #e2e8f0;
+    outline: none;
+    width: 100%;
+    font-family: inherit;
+    background: transparent;
+}
+
+.module-title-input:focus {
+    border-bottom-color: #667eea;
+}
+
+.module-info {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
 
-.course-description-full {
+.module-description-full {
     font-size: 16px;
     color: #475569;
     line-height: 1.6;
@@ -46,7 +55,25 @@
     word-break: break-word;
 }
 
-.course-meta-info {
+.module-description-input {
+    font-size: 16px;
+    color: #475569;
+    line-height: 1.6;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    outline: none;
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.module-description-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.module-meta-info {
     display: flex;
     flex-wrap: wrap;
     gap: 24px;
@@ -72,25 +99,7 @@
     font-weight: 600;
 }
 
-.access-badge {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
-.access-badge.public {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.access-badge.private {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.course-actions {
+.module-actions {
     display: flex;
     gap: 12px;
     margin-top: 24px;
@@ -98,14 +107,11 @@
     border-top: 1px solid #e2e8f0;
 }
 
-/* Единый стиль для всех кнопок */
-.publish-button,
 .edit-button,
 .delete-button,
 .save-button,
-.cancel-edit-button,
-.create-module-button,
-.back-button {
+.cancel-edit-button {
+    flex: 1;
     padding: 10px 20px;
     font-size: 14px;
     font-weight: 600;
@@ -114,16 +120,6 @@
     transition: all 0.2s;
     border: none;
     color: white;
-    flex: 1;
-}
-
-.publish-button {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.publish-button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 .edit-button {
@@ -168,85 +164,14 @@
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
 }
 
-.back-button {
-    background: white;
-    color: #667eea;
-}
-
-.back-button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
-}
-
-.create-module-button {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    flex: 0 1 auto;
-}
-
-.create-module-button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.course-title-input {
-    font-size: 36px;
-    font-weight: 700;
-    color: #1e293b;
-    padding: 8px 0;
-    border: none;
-    border-bottom: 2px solid #e2e8f0;
-    outline: none;
-    width: 100%;
-    font-family: inherit;
-    background: transparent;
-}
-
-.course-title-input:focus {
-    border-bottom-color: #667eea;
-}
-
-.course-description-input {
-    font-size: 16px;
-    color: #475569;
-    line-height: 1.6;
-    padding: 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    outline: none;
-    resize: vertical;
-    min-height: 120px;
-    font-family: inherit;
-}
-
-.course-description-input:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.access-type-select {
-    padding: 6px 12px;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    background: white;
-    cursor: pointer;
-    outline: none;
-}
-
-.access-type-select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
-}
-
-.modules-section {
+.lessons-section {
     background: white;
     border-radius: 24px;
     padding: 40px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-.modules-section .section-header {
+.lessons-section .section-header {
     position: relative;
     display: flex;
     justify-content: center;
@@ -254,7 +179,7 @@
     margin-bottom: 32px;
 }
 
-.modules-section .section-title {
+.lessons-section .section-title {
     font-size: 28px;
     font-weight: 700;
     color: #1e293b;
@@ -262,19 +187,33 @@
     text-align: center;
 }
 
-.modules-section .section-header .create-module-button {
+.create-lesson-button {
     position: absolute;
     right: 0;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s;
 }
 
-.modules-grid {
+.create-lesson-button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.lessons-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 24px;
     align-items: stretch;
 }
 
-.module-card {
+.lesson-card {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -287,13 +226,13 @@
     position: relative;
 }
 
-.module-card:hover {
+.lesson-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
     border-color: #cbd5e1;
 }
 
-.module-position {
+.lesson-position {
     position: absolute;
     top: 16px;
     right: 16px;
@@ -305,7 +244,7 @@
     border-radius: 20px;
 }
 
-.module-title {
+.lesson-title {
     font-size: 20px;
     font-weight: 600;
     color: #1e293b;
@@ -319,7 +258,7 @@
     overflow: hidden;
 }
 
-.module-description {
+.lesson-description {
     flex: 1;
     font-size: 14px;
     color: #64748b;
@@ -333,31 +272,7 @@
     overflow: hidden;
 }
 
-.module-stats {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 16px;
-    padding: 12px 0;
-    border-top: 1px solid #e2e8f0;
-}
-
-.module-stats .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.module-stats .stat-icon {
-    font-size: 16px;
-}
-
-.module-stats .stat-value {
-    font-size: 13px;
-    color: #475569;
-    font-weight: 500;
-}
-
-.module-button {
+.lesson-button {
     margin-top: auto;
     width: 100%;
     padding: 10px;
@@ -371,7 +286,7 @@
     transition: all 0.2s;
 }
 
-.module-button:hover {
+.lesson-button:hover {
     transform: scale(1.02);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
 }
@@ -387,6 +302,73 @@
     font-weight: 500;
 }
 
+.back-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    background: white;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.back-button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.error-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+}
+
+.error-message {
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 16px 24px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.loading-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loading-container p {
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Модальное окно */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -480,111 +462,87 @@
     transform: none;
 }
 
-.error-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    gap: 24px;
+.position-input {
+    width: 80px;
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    text-align: center;
+    outline: none;
 }
 
-.error-message {
-    color: white;
-    font-size: 18px;
-    font-weight: 500;
-    background: rgba(255, 255, 255, 0.2);
-    padding: 16px 24px;
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
+.position-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.1);
 }
 
-.loading-container {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.position-input::-webkit-inner-spin-button,
+.position-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
-.loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 16px;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.loading-container p {
-    color: white;
-    font-size: 18px;
-    font-weight: 500;
+.position-input[type=number] {
+    -moz-appearance: textfield;
 }
 
 @media (max-width: 768px) {
-    .course-page-content {
+    .module-page-content {
         padding: 24px 16px;
     }
 
-    .course-header {
+    .module-header {
         padding: 24px;
     }
 
-    .course-header-main {
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .course-page-title {
+    .module-page-title {
         font-size: 28px;
     }
 
-    .course-title-input {
+    .module-title-input {
         font-size: 28px;
     }
 
-    .course-meta-info {
+    .module-meta-info {
         flex-direction: column;
         gap: 12px;
     }
 
-    .course-actions {
+    .module-actions {
         flex-direction: column;
     }
 
-    .modules-section {
+    .lessons-section {
         padding: 24px;
     }
 
-    .modules-section .section-header {
+    .lessons-section .section-header {
         margin-bottom: 24px;
     }
 
-    .modules-section .section-title {
+    .lessons-section .section-title {
         font-size: 24px;
     }
 
-    .modules-grid {
+    .lessons-grid {
         grid-template-columns: 1fr;
         gap: 16px;
     }
 
-    .module-card {
+    .lesson-card {
         padding: 20px;
     }
 
-    .module-title {
+    .lesson-title {
         min-height: auto;
+    }
+
+    .create-lesson-button {
+        padding: 8px 16px;
+        font-size: 13px;
     }
 
     .modal-content {
@@ -594,9 +552,10 @@
     .modal-actions {
         flex-direction: column;
     }
+
 }
 
-.course-header-top {
+.module-header-top {
     margin-bottom: 20px;
 }
 
@@ -621,8 +580,8 @@
     transform: translateX(-2px);
 }
 
-/* Обновите существующий стиль .course-header */
-.course-header {
+/* Обновите существующий стиль .module-header */
+.module-header {
     background: white;
     border-radius: 24px;
     padding: 40px;
@@ -630,7 +589,28 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-/* Обновите .course-header-main */
-.course-header-main {
+/* Обновите .module-header-main */
+.module-header-main {
     margin-bottom: 32px;
+}
+
+/* Убедитесь, что эти стили тоже есть */
+.error-container .back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    background: white;
+    color: #667eea;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.error-container .back-button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }

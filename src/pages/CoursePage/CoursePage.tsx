@@ -201,6 +201,10 @@ const CoursePage = () => {
         navigate(`/courses/${id}/modules/create`);
     };
 
+    const handleBack = () => {
+        navigate("/");
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -214,7 +218,7 @@ const CoursePage = () => {
         return (
             <div className="error-container">
                 <p className="error-message">{error || "Курс не найден"}</p>
-                <button onClick={() => navigate("/")} className="back-button">Вернуться на главную</button>
+                <button onClick={handleBack} className="back-button">Вернуться на главную</button>
             </div>
         );
     }
@@ -225,6 +229,12 @@ const CoursePage = () => {
     return (
         <div className="course-page-content">
             <div className="course-header">
+                <div className="course-header-top">
+                    <button onClick={handleBack} className="back-button">
+                        ← Назад
+                    </button>
+                </div>
+
                 <div className="course-header-main">
                     {isEditing ? (
                         <input

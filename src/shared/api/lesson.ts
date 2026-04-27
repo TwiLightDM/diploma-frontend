@@ -15,12 +15,13 @@ export interface LessonListResponse {
     lessons: LessonResponse[];
 }
 
-export const LessonApi = {
-    post: (title: string, description: string, content: string) =>
+export const lessonApi = {
+    post: (title: string, description: string, content: string, module_id: string) =>
         api.post<LessonResponse>(`${LESSONS}`, {
             title,
             description,
             content,
+            module_id,
         }),
 
     getAllByModuleId: (module_id: string) =>
@@ -29,12 +30,11 @@ export const LessonApi = {
     getById: (id: string) =>
         api.get<LessonResponse>(`${LESSONS}/${id}`),
 
-    patch: (id: string, title: string,  description: string, content: string, position: number) =>
+    patch: (id: string, title: string,  description: string, content: string) =>
         api.patch<LessonResponse>(`${LESSONS}/${id}`, {
             title,
             description,
             content,
-            position,
         }),
 
     delete: (id: string) =>
