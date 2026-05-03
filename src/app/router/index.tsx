@@ -9,6 +9,7 @@ import CreateModulePage from "@/pages/CreateModulePage/CreateModulePage.tsx";
 import ModulePage from "@/pages/ModulePage/ModulePage.tsx";
 import CreateLessonPage from "@/pages/CreateLessonPage/CreateLessonPage.tsx";
 import LessonPage from "@/pages/LessonPage/LessonPage.tsx";
+import ProfilePage from "@/pages/ProfilePage/ProfilePage.tsx";
 
 export const AppRouter = () => (
     <BrowserRouter>
@@ -18,7 +19,7 @@ export const AppRouter = () => (
 
             <Route element={<Layout />}>
                 <Route path="/" element={<HomePage />} />
-                <Route path="/profile" element={<div>Страница профиля</div>} />
+                <Route path="/profile" element={<ProfilePage/>} />
                 <Route path="/courses/create" element={<CreateCoursePage />} />
                 <Route path="/courses/:id" element={<CoursePage />} />
                 <Route path="/courses/:id/modules/create" element={<CreateModulePage/>}/>
