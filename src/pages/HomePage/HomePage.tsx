@@ -46,10 +46,6 @@ const HomePage = () => {
         navigate("/courses/create");
     };
 
-    const handleOpenGroups = () => {
-        navigate("/groups");
-    };
-
     const handleRoleChange = async (userId: string, newRole: string) => {
         setSavingRole(true);
         try {
@@ -187,9 +183,6 @@ const HomePage = () => {
                         </h2>
                         {user.role === "teacher" && (
                             <div className="section-header-actions">
-                                <button onClick={handleOpenGroups} className="open-groups-button">
-                                    Открыть группы
-                                </button>
                                 <button onClick={handleCreateCourse} className="create-course-button">
                                     Создать курс
                                 </button>

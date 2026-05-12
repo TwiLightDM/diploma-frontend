@@ -17,23 +17,23 @@ import GroupPage from "@/pages/GroupPage/GroupPage.tsx";
 export const AppRouter = () => (
     <BrowserRouter>
         <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignUpPage />} />
+            <Route path="/login" element={<LoginPage/>}/>
+            <Route path="/signup" element={<SignUpPage/>}/>
 
-            <Route element={<Layout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/profile" element={<ProfilePage/>} />
-                <Route path="/courses/create" element={<CreateCoursePage />} />
-                <Route path="/courses/:courseId" element={<CoursePage />} />
-                <Route path="/courses/:id/modules/create" element={<CreateModulePage/>}/>
-                <Route path="/modules/:moduleId" element={<ModulePage />} />
-                <Route path="/modules/:id/lessons/create" element={<CreateLessonPage/>}/>
-                <Route path="/lessons/:id" element={<LessonPage />} />
-                <Route path="/modules/:moduleId/tests/create" element={<CreateTestPage/>}/>
-                <Route path="/courses/:courseId/tests/create" element={<CreateTestPage/>}/>
-                {/*<Route path="/modules/:moduleId/test" element={<TestPage />} />*/}
-                <Route path="/groups/create" element={<CreateGroupPage/>}/>
-                <Route path="/groups" element={<GroupPage/>}/>
+            <Route element={<Layout/>}>
+                    <Route path="/" element={<HomePage/>}/>
+                    <Route path="/profile" element={<ProfilePage/>}/>
+                    <Route path="/courses/create" element={<CreateCoursePage/>}/>
+                    <Route path="/courses/:courseId" element={<CoursePage/>}/>
+                    <Route path="/courses/:id/modules/create" element={<CreateModulePage/>}/>
+                    <Route path="/modules/:moduleId" element={<ModulePage/>}/>
+                    <Route path="/modules/:id/lessons/create" element={<CreateLessonPage/>}/>
+                    <Route path="/lessons/:id" element={<LessonPage/>}/>
+                    <Route path="/modules/:moduleId/tests/create" element={<CreateTestPage/>}/>
+                    <Route path="/courses/:courseId/tests/create" element={<CreateTestPage/>}/>
+                    {/*<Route path="/modules/:moduleId/test" element={<TestPage />} />*/}
+                    <Route path="/groups/create" element={<CreateGroupPage/>}/>
+                    <Route path="/groups" element={<GroupPage/>}/>
             </Route>
         </Routes>
     </BrowserRouter>

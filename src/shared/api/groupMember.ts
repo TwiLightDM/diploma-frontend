@@ -25,6 +25,9 @@ export const groupMemberApi = {
     getAllByGroupId: (group_id: string) =>
         api.get<GroupMemberListResponse>(`${GROUP_MEMBERS}/${group_id}`),
 
+    getAllByUserId: () =>
+        api.get<GroupMemberListResponse>(`${GROUP_MEMBERS}`),
+
     delete: (id: string) =>
         api.delete<void>(`${GROUP_MEMBERS}/${id}`),
 };

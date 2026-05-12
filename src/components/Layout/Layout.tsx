@@ -1,15 +1,15 @@
-// Layout.tsx
-import { useEffect, useState, useCallback, useRef } from "react";
+// Layout.tsx - передача user в GroupPage через props
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate, Outlet } from "react-router-dom";
 import { userApi, type UserResponse } from "@/shared/api/user";
 import "./Layout.css";
+import GroupPage from "@/pages/GroupPage/GroupPage.tsx";
 
 const Layout = () => {
     const navigate = useNavigate();
     const [user, setUser] = useState<UserResponse | null>(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [loading, setLoading] = useState(true);
-    const isInitialMount = useRef(true);
 
     const fetchUser = useCallback(async () => {
         try {
@@ -18,12 +18,11 @@ const Layout = () => {
             setUser(userRes.data);
         } catch (error) {
             console.error("Failed to fetch user:", error);
-            if (isInitialMount.current) {
+            if (!user) {
                 navigate("/login");
             }
         } finally {
             setLoading(false);
-            isInitialMount.current = false;
         }
     }, [navigate]);
 
@@ -56,6 +55,8 @@ const Layout = () => {
     }
 
     if (!user) return null;
+
+    const showGroups = user.role === "teacher" || user.role === "student";
 
     return (
         <div className="layout">
@@ -101,9 +102,17 @@ const Layout = () => {
                 </div>
             </header>
 
-            <main className="layout-main">
-                <Outlet context={{ user, refreshUser: fetchUser }} />
-            </main>
+            <div className="layout-body">
+                <main className={`layout-main ${showGroups ? 'with-groups' : ''}`}>
+                    <Outlet context={{ user, refreshUser: fetchUser }} />
+                </main>
+
+                {showGroups && (
+                    <aside className="layout-groups">
+                        <GroupPage user={user} />
+                    </aside>
+                )}
+            </div>
         </div>
     );
 };

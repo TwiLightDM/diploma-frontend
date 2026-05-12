@@ -13,7 +13,6 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .home-main {
@@ -54,7 +53,6 @@ body {
     gap: 10px;
 }
 
-.open-groups-button,
 .create-course-button {
     padding: 10px 20px;
     font-size: 14px;
@@ -65,15 +63,6 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     white-space: nowrap;
-}
-
-.open-groups-button {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.open-groups-button:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 .create-course-button {
