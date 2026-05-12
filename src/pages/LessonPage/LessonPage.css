@@ -1,7 +1,7 @@
 .lesson-page-content {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 48px 32px;
+    padding: 0 32px;
 }
 
 .lesson-header {
@@ -559,7 +559,7 @@
 
 @media (max-width: 768px) {
     .lesson-page-content {
-        padding: 24px 16px;
+        padding: 0 16px;
     }
 
     .lesson-header {
