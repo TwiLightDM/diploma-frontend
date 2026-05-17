@@ -22,6 +22,42 @@ interface GroupWithMembers {
     loadingMembers: boolean;
 }
 
+// Модальное окно подтверждения удаления группы
+const DeleteGroupModal = ({
+                              isOpen,
+                              groupTitle,
+                              onClose,
+                              onConfirm,
+                              isDeleting
+                          }: {
+    isOpen: boolean;
+    groupTitle: string;
+    onClose: () => void;
+    onConfirm: () => void;
+    isDeleting: boolean;
+}) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <h3 className="modal-title">Подтверждение удаления</h3>
+                <p className="modal-text">
+                    Вы точно уверены, что хотите удалить группу <strong>"{groupTitle}"</strong>?
+                </p>
+                <div className="modal-actions">
+                    <button onClick={onClose} className="modal-cancel-button" disabled={isDeleting}>
+                        Нет, отмена
+                    </button>
+                    <button onClick={onConfirm} className="modal-confirm-button" disabled={isDeleting}>
+                        {isDeleting ? "Удаление..." : "Да, удалить"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const GroupPage = ({ user }: { user: UserResponse }) => {
     const navigate = useNavigate();
     const [groups, setGroups] = useState<GroupWithMembers[]>([]);
@@ -42,6 +78,11 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
     const [editedDescription, setEditedDescription] = useState("");
     const [savingGroup, setSavingGroup] = useState(false);
 
+    // Состояния для модального окна удаления
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deletingGroup, setDeletingGroup] = useState<{ id: string; title: string } | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
     const isTeacher = user?.role === "teacher";
 
     useEffect(() => {
@@ -54,7 +95,6 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
 
         try {
             if (isTeacher) {
-                // Учитель получает свои группы напрямую
                 const groupsRes = await groupApi.getMy();
                 const fetchedGroups = groupsRes.data.groups || [];
 
@@ -66,7 +106,6 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
                     }))
                 );
             } else {
-                // Студент получает группы через members
                 const membersRes = await groupMemberApi.getAllByUserId();
                 const groupMembers = membersRes.data.group_members || [];
 
@@ -76,10 +115,8 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
                     return;
                 }
 
-                // Получаем уникальные group_id
                 const uniqueGroupIds = [...new Set(groupMembers.map(gm => gm.group_id))];
 
-                // Загружаем информацию о каждой группе
                 const groupPromises = uniqueGroupIds.map(groupId =>
                     groupApi.getById(groupId)
                         .then(res => res.data)
@@ -107,7 +144,6 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
         }
     };
 
-    // Загрузка участников группы
     const loadMembers = async (groupId: string) => {
         setGroups(prev =>
             prev.map(item =>
@@ -151,7 +187,6 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
         }
     };
 
-    // Начало редактирования группы
     const handleStartEditGroup = (groupId: string, e: React.MouseEvent) => {
         e.stopPropagation();
         const group = groups.find(g => g.group.id === groupId);
@@ -162,7 +197,6 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
         }
     };
 
-    // Отмена редактирования группы
     const handleCancelEditGroup = (e: React.MouseEvent) => {
         e.stopPropagation();
         setEditingGroupId(null);
@@ -170,7 +204,6 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
         setEditedDescription("");
     };
 
-    // Сохранение изменений группы
     const handleSaveGroup = async (groupId: string, e: React.MouseEvent) => {
         e.stopPropagation();
 
@@ -215,7 +248,6 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
         }
     };
 
-    // Добавление участника в группу
     const handleAddMember = async (groupId: string) => {
         if (!newMemberEmail.trim()) {
             setMemberError("Введите email участника");
@@ -257,7 +289,6 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
         }
     };
 
-    // Удаление участника из группы
     const handleRemoveMember = async (groupId: string, userId: string) => {
         try {
             const membersRes = await groupMemberApi.getAllByGroupId(groupId);
@@ -277,23 +308,41 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
         }
     };
 
-    const handleDeleteGroup = async (groupId: string, e: React.MouseEvent) => {
+    // Открытие модального окна удаления
+    const handleOpenDeleteModal = (groupId: string, groupTitle: string, e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!window.confirm("Вы уверены, что хотите удалить группу?")) return;
+        setDeletingGroup({ id: groupId, title: groupTitle });
+        setDeleteModalOpen(true);
+    };
+
+    // Закрытие модального окна удаления
+    const handleCloseDeleteModal = () => {
+        setDeleteModalOpen(false);
+        setDeletingGroup(null);
+    };
+
+    // Подтверждение удаления группы
+    const handleConfirmDelete = async () => {
+        if (!deletingGroup) return;
+
+        setIsDeleting(true);
 
         try {
-            await groupApi.delete(groupId);
-            setGroups(prev => prev.filter(g => g.group.id !== groupId));
+            await groupApi.delete(deletingGroup.id);
+            setGroups(prev => prev.filter(g => g.group.id !== deletingGroup.id));
             setExpandedGroups(prev => {
                 const newSet = new Set(prev);
-                newSet.delete(groupId);
+                newSet.delete(deletingGroup.id);
                 return newSet;
             });
             setSuccessMessage("Группа удалена");
             setTimeout(() => setSuccessMessage(null), 3000);
+            handleCloseDeleteModal();
         } catch (err) {
             console.error("Failed to delete group:", err);
             setError("Не удалось удалить группу");
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -341,7 +390,7 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
                                 <p className="groups-empty-hint">Создайте группу, чтобы добавлять участников</p>
                             </>
                         ) : (
-                            <p>В настоящий момент нет групп, к которым вы состоите. При необходимости обратитесь к преподавателю</p>
+                            <p>В настоящий момент нет групп, в которых вы состоите. При необходимости обратитесь к преподавателю</p>
                         )}
                     </div>
                 ) : (
@@ -415,7 +464,7 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
                                                             </button>
                                                             <button
                                                                 className="delete-group-button"
-                                                                onClick={(e) => handleDeleteGroup(group.id, e)}
+                                                                onClick={(e) => handleOpenDeleteModal(group.id, group.title, e)}
                                                                 title="Удалить группу"
                                                             >
                                                                 ✕
@@ -529,6 +578,14 @@ const GroupPage = ({ user }: { user: UserResponse }) => {
                     </div>
                 )}
             </div>
+
+            <DeleteGroupModal
+                isOpen={deleteModalOpen}
+                groupTitle={deletingGroup?.title || ""}
+                onClose={handleCloseDeleteModal}
+                onConfirm={handleConfirmDelete}
+                isDeleting={isDeleting}
+            />
         </div>
     );
 };

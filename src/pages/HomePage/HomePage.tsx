@@ -4,6 +4,8 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { courseApi, type CourseResponse } from "@/shared/api/course";
 import { userApi, type UserResponse } from "@/shared/api/user";
 import "./HomePage.css";
+import {completedTheoryCourseApi} from "@/shared/api/completedTheoryCourse.ts";
+import {completedCourseApi} from "@/shared/api/completedCourse.ts";
 
 const formatDescription = (text: string | undefined): string => {
     if (!text) return '';
@@ -14,17 +16,54 @@ const HomePage = () => {
     const navigate = useNavigate();
     const { user } = useOutletContext<{ user: UserResponse }>();
     const [courses, setCourses] = useState<CourseResponse[]>([]);
+    const [completedCourseIds, setCompletedCourseIds] = useState<Set<string>>(new Set());
+    const [theoryCompletedCourseIds, setTheoryCompletedCourseIds] = useState<Set<string>>(new Set());
     const [users, setUsers] = useState<UserResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [editingUserId, setEditingUserId] = useState<string | null>(null);
     const [savingRole, setSavingRole] = useState(false);
+    const [showCompleted, setShowCompleted] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 if (user.role === "student") {
-                    const coursesRes = await courseApi.getAll();
-                    setCourses(coursesRes.data.courses || []);
+                    const coursesRes = await courseApi.getAvailable();
+                    const allCourses = coursesRes.data.courses || [];
+
+                    // Загружаем завершенные теоретические курсы
+                    let theoryCompletedIds = new Set<string>();
+                    try {
+                        const theoryRes = await completedTheoryCourseApi.getMy();
+                        const theoryCourses = theoryRes.data.completed_theory_courses || [];
+                        theoryCompletedIds = new Set(theoryCourses.map(ctc => ctc.course_id));
+                    } catch {
+                        // игнорируем
+                    }
+                    setTheoryCompletedCourseIds(theoryCompletedIds);
+
+                    // Загружаем полностью завершенные курсы
+                    let fullyCompletedIds = new Set<string>();
+                    try {
+                        const completedRes = await completedCourseApi.getMy();
+                        const completedCourses = completedRes.data.completed_courses || [];
+                        fullyCompletedIds = new Set(completedCourses.map(cc => cc.course_id));
+                    } catch {
+                        // игнорируем
+                    }
+                    setCompletedCourseIds(fullyCompletedIds);
+
+                    // Сортируем курсы: теория пройдена (но не полностью) - первыми
+                    const sortedCourses = [...allCourses].sort((a, b) => {
+                        const aTheoryOnly = theoryCompletedIds.has(a.id) && !fullyCompletedIds.has(a.id);
+                        const bTheoryOnly = theoryCompletedIds.has(b.id) && !fullyCompletedIds.has(b.id);
+
+                        if (aTheoryOnly && !bTheoryOnly) return -1;
+                        if (!aTheoryOnly && bTheoryOnly) return 1;
+                        return 0;
+                    });
+
+                    setCourses(sortedCourses);
                 } else if (user.role === "teacher") {
                     const coursesRes = await courseApi.getMy();
                     setCourses(coursesRes.data.courses || []);
@@ -50,11 +89,8 @@ const HomePage = () => {
         setSavingRole(true);
         try {
             await userApi.patchRole(userId, newRole);
-
-            // Обновляем список пользователей
             const usersRes = await userApi.getAll();
             setUsers(usersRes.data.users || []);
-
             setEditingUserId(null);
         } catch (error) {
             console.error("Failed to change role:", error);
@@ -70,6 +106,19 @@ const HomePage = () => {
             admin: "Администратор",
         };
         return labels[role] || role;
+    };
+
+    // Фильтрация курсов для студента
+    const getFilteredCourses = (): CourseResponse[] => {
+        if (user.role !== "student") return courses;
+
+        if (showCompleted) {
+            // Показываем только полностью завершенные курсы
+            return courses.filter(c => completedCourseIds.has(c.id));
+        } else {
+            // Показываем курсы, которые не завершены полностью
+            return courses.filter(c => !completedCourseIds.has(c.id));
+        }
     };
 
     if (loading) {
@@ -172,6 +221,8 @@ const HomePage = () => {
         );
     }
 
+    const filteredCourses = getFilteredCourses();
+
     // Отображение для студента и преподавателя
     return (
         <div className="home-container">
@@ -179,69 +230,102 @@ const HomePage = () => {
                 <div className="courses-section">
                     <div className="section-header">
                         <h2 className="section-title">
-                            {user.role === "student" ? "Доступные курсы" : "Мои курсы"}
+                            {user.role === "student"
+                                ? (showCompleted ? "Завершенные курсы" : "Доступные курсы")
+                                : "Мои курсы"
+                            }
                         </h2>
-                        {user.role === "teacher" && (
-                            <div className="section-header-actions">
-                                <button onClick={handleCreateCourse} className="create-course-button">
-                                    Создать курс
+                        <div className="section-header-actions">
+                            {user.role === "student" && (
+                                <button
+                                    onClick={() => setShowCompleted(!showCompleted)}
+                                    className={`toggle-completed-button ${showCompleted ? 'active' : ''}`}
+                                >
+                                    {showCompleted ? "Активные курсы" : "Завершенные курсы"}
                                 </button>
-                            </div>
-                        )}
+                            )}
+                            {user.role === "teacher" && (
+                                <>
+                                    <button onClick={handleCreateCourse} className="create-course-button">
+                                        Создать курс
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
 
-                    {courses.length === 0 ? (
+                    {filteredCourses.length === 0 ? (
                         <div className="empty-state">
-                            <p className="empty-message">В данный момент курсы не найдены</p>
+                            <p className="empty-message">
+                                {showCompleted ? "Нет завершенных курсов" : "В данный момент курсы не найдены"}
+                            </p>
                         </div>
                     ) : (
                         <div className="courses-grid">
-                            {courses.map((course) => (
-                                <div key={course.id} className="course-card">
-                                    <h3 className="course-title">{course.title}</h3>
+                            {filteredCourses.map((course) => {
+                                const isPublished = !!course.published_at;
+                                const isTheoryCompleted = theoryCompletedCourseIds.has(course.id);
+                                const isFullyCompleted = completedCourseIds.has(course.id);
 
-                                    <div className="course-description">
-                                        {formatDescription(course.description).split('\n').map((line, idx, arr) => (
-                                            <span key={idx}>
-                                                {line}
-                                                {idx < arr.length - 1 && <br />}
-                                            </span>
-                                        ))}
-                                    </div>
-
-                                    <div className="course-stats">
-                                        <div className="stat-item">
-                                            <span className="stat-icon">📚</span>
-                                            <span className="stat-value">
-                                                {course.amount_of_modules || 0} модулей
-                                            </span>
+                                return (
+                                    <div key={course.id} className={`course-card ${user.role === 'teacher' && !isPublished ? 'not-published' : ''} ${isTheoryCompleted && !isFullyCompleted ? 'theory-completed' : ''} ${isFullyCompleted ? 'fully-completed' : ''}`}>
+                                        <div className="course-status-badges">
+                                            {user.role === 'teacher' && !isPublished && (
+                                                <span className="course-badge not-published-badge">📝 Не опубликован</span>
+                                            )}
+                                            {user.role === 'student' && isTheoryCompleted && !isFullyCompleted && (
+                                                <span className="course-badge theory-badge">📚 Теория пройдена</span>
+                                            )}
+                                            {user.role === 'student' && isFullyCompleted && (
+                                                <span className="course-badge completed-badge">✅ Завершен</span>
+                                            )}
                                         </div>
-                                        <div className="stat-item">
-                                            <span className="stat-icon">📝</span>
-                                            <span className="stat-value">
-                                                {course.amount_of_lessons || 0} уроков
-                                            </span>
-                                        </div>
-                                    </div>
 
-                                    <div className="course-meta">
-                                        <span className={`access-badge ${course.access_type === 'public' ? 'public' : 'private'}`}>
-                                            {course.access_type === 'public' ? 'Публичный' : 'Приватный'}
-                                        </span>
-                                        {course.published_at && (
-                                            <span className="publish-date">
-                                                📅 {new Date(course.published_at).toLocaleDateString('ru-RU')}
-                                            </span>
-                                        )}
+                                        <h3 className="course-title">{course.title}</h3>
+
+                                        <div className="course-description">
+                                            {formatDescription(course.description).split('\n').map((line, idx, arr) => (
+                                                <span key={idx}>
+                            {line}
+                                                    {idx < arr.length - 1 && <br />}
+                        </span>
+                                            ))}
+                                        </div>
+
+                                        <div className="course-stats">
+                                            <div className="stat-item">
+                                                <span className="stat-icon">📚</span>
+                                                <span className="stat-value">
+                            {course.amount_of_modules || 0} модулей
+                        </span>
+                                            </div>
+                                            <div className="stat-item">
+                                                <span className="stat-icon">📝</span>
+                                                <span className="stat-value">
+                            {course.amount_of_lessons || 0} уроков
+                        </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="course-meta">
+                    <span className={`access-badge ${course.access_type === 'public' ? 'public' : 'private'}`}>
+                        {course.access_type === 'public' ? 'Публичный' : 'Приватный'}
+                    </span>
+                                            {course.published_at && (
+                                                <span className="publish-date">
+                            📅 {new Date(course.published_at).toLocaleDateString('ru-RU')}
+                        </span>
+                                            )}
+                                        </div>
+                                        <button
+                                            className="course-button"
+                                            onClick={() => navigate(`/courses/${course.id}`)}
+                                        >
+                                            Подробнее
+                                        </button>
                                     </div>
-                                    <button
-                                        className="course-button"
-                                        onClick={() => navigate(`/courses/${course.id}`)}
-                                    >
-                                        Подробнее
-                                    </button>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     )}
                 </div>

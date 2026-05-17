@@ -678,3 +678,139 @@
     transform: scale(1.02);
     box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
+
+/* Статистика кнопка */
+.statistics-button {
+    width: 100%;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    color: white;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    margin-top: 8px;
+}
+
+.statistics-button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* Заблокированный урок */
+.lesson-card.locked {
+    opacity: 0.6;
+    position: relative;
+}
+
+.lesson-card.locked::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 16px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.lesson-card.completed {
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.completed-check {
+    margin-left: 6px;
+    font-size: 14px;
+}
+
+.locked-badge {
+    margin-left: 6px;
+    font-size: 14px;
+}
+
+.lesson-locked-text {
+    margin-top: auto;
+    padding: 10px;
+    text-align: center;
+    font-size: 13px;
+    color: #94a3b8;
+    font-weight: 500;
+    background: #f1f5f9;
+    border-radius: 8px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Заблокированный тест */
+.test-locked-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.locked-icon {
+    font-size: 18px;
+}
+
+.locked-text {
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+/* Действия модуля */
+.module-additional-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Строка с заголовком модуля */
+.module-title-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.module-completed-badge {
+    font-size: 28px;
+    flex-shrink: 0;
+}
+
+/* Статус завершения */
+.status-completed {
+    color: #10b981 !important;
+    font-weight: 600 !important;
+}
+
+/* Информация о завершенном модуле */
+.module-completed-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 12px;
+}
+
+.module-completed-info .completed-icon {
+    font-size: 24px;
+}
+
+.module-completed-info .completed-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: #166534;
+}

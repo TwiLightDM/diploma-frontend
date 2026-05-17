@@ -47,9 +47,15 @@ export const taskAttemptApi = {
         api.get<TaskAttemptResponse>(`${TASK_ATTEMPTS}/${id}`),
 
     getMyByCourseId: (course_id: string) =>
-        api.get<TaskAttemptListResponse>(`${TASK_ATTEMPTS}/courses/${course_id}`,),
+        api.get<TaskAttemptListResponse>(`${TASK_ATTEMPTS}/courses/${course_id}/my`,),
 
     getMyByModuleId: (module_id: string) =>
+        api.get<TaskAttemptListResponse>(`${TASK_ATTEMPTS}/modules/${module_id}/my`),
+
+    getByCourseId: (course_id: string) =>
+        api.get<TaskAttemptListResponse>(`${TASK_ATTEMPTS}/courses/${course_id}`,),
+
+    getByModuleId: (module_id: string) =>
         api.get<TaskAttemptListResponse>(`${TASK_ATTEMPTS}/modules/${module_id}`),
 
     getByUserIdAndCourseId: (user_id: string, course_id: string) =>

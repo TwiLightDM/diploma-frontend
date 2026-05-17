@@ -5,6 +5,7 @@ import { type UserResponse } from "@/shared/api/user";
 import { lessonApi, type LessonResponse } from "@/shared/api/lesson";
 import { fileApi, type FileResponse } from "@/shared/api/file";
 import "./LessonPage.css";
+import {lessonProgressApi} from "@/shared/api/progress.ts";
 
 const formatDescription = (text: string | undefined): string => {
     if (!text) return '';
@@ -159,6 +160,7 @@ const LessonPage = () => {
     const [lesson, setLesson] = useState<LessonResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // Состояния для редактирования
     const [isEditing, setIsEditing] = useState(false);
@@ -177,6 +179,10 @@ const LessonPage = () => {
     const [existingFiles, setExistingFiles] = useState<FileResponse[]>([]);
     const [newFiles, setNewFiles] = useState<File[]>([]);
     const [filesToDelete, setFilesToDelete] = useState<string[]>([]);
+
+    // Состояние для завершения урока
+    const [isCompleting, setIsCompleting] = useState(false);
+    const [isCompleted, setIsCompleted] = useState(false);
 
     // Состояния для модальных окон
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -207,6 +213,16 @@ const LessonPage = () => {
             } catch (err) {
                 console.error("Failed to fetch files:", err);
             }
+
+            // Проверяем, завершен ли урок (для студента)
+            if (user?.role !== "teacher") {
+                try {
+                    await lessonProgressApi.getByLessonId(lessonId);
+                    setIsCompleted(true);
+                } catch {
+                    setIsCompleted(false);
+                }
+            }
         } catch (err) {
             console.error("Failed to fetch lesson data:", err);
             setError("Не удалось загрузить данные урока");
@@ -235,56 +251,41 @@ const LessonPage = () => {
     }, [editedTitle, editedDescription, newFiles, filesToDelete, checkChanges]);
 
     const getDisplayFileName = (objectName: string): string => {
-        // object_name имеет формат "lessons/{id урока}/{id файла}/{название файла}.{расширение}"
         const parts = objectName.split('/');
-        // Возвращаем последнюю часть пути - имя файла с расширением
         return parts[parts.length - 1] || objectName;
     };
 
-// Функция для извлечения расширения файла
     const getFileExtension = (objectName: string): string => {
         const fileName = getDisplayFileName(objectName);
         const parts = fileName.split('.');
         return parts.length > 1 ? parts[parts.length - 1].toLowerCase() : '';
     };
 
-// Функция для получения иконки в зависимости от типа файла
     const getFileIcon = (objectName: string): string => {
         const ext = getFileExtension(objectName);
 
         const iconMap: Record<string, string> = {
-            // Документы
             'pdf': '📕',
             'doc': '📘',
             'docx': '📘',
             'txt': '📄',
             'rtf': '📄',
-
-            // Таблицы
             'xls': '📊',
             'xlsx': '📊',
             'csv': '📊',
-
-            // Презентации
             'ppt': '📽️',
             'pptx': '📽️',
-
-            // Изображения
             'jpg': '🖼️',
             'jpeg': '🖼️',
             'png': '🖼️',
             'gif': '🖼️',
             'svg': '🖼️',
             'webp': '🖼️',
-
-            // Архивы
             'zip': '📦',
             'rar': '📦',
             '7z': '📦',
             'tar': '📦',
             'gz': '📦',
-
-            // Код
             'js': '💻',
             'ts': '💻',
             'jsx': '💻',
@@ -298,15 +299,11 @@ const LessonPage = () => {
             'jar': '💻',
             'py': '💻',
             'cpp': '💻',
-
-            // Видео
             'mp4': '🎥',
             'avi': '🎥',
             'mov': '🎥',
             'webm': '🎥',
             'mkv': '🎥',
-
-            // Аудио
             'mp3': '🎵',
             'wav': '🎵',
             'ogg': '🎵',
@@ -315,7 +312,6 @@ const LessonPage = () => {
         return iconMap[ext] || '📎';
     };
 
-    // Обработка выбора новых файлов
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFiles = Array.from(e.target.files || []);
 
@@ -334,17 +330,14 @@ const LessonPage = () => {
         }
     };
 
-    // Удаление нового файла (еще не загруженного)
     const handleRemoveNewFile = (index: number) => {
         setNewFiles(prev => prev.filter((_, i) => i !== index));
     };
 
-    // Пометить существующий файл на удаление
     const handleMarkFileForDeletion = (fileId: string) => {
         setFilesToDelete(prev => [...prev, fileId]);
     };
 
-    // Отменить удаление существующего файла
     const handleUnmarkFileForDeletion = (fileId: string) => {
         setFilesToDelete(prev => prev.filter(id => id !== fileId));
     };
@@ -357,7 +350,6 @@ const LessonPage = () => {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     };
 
-    // Обновление активных форматов
     const updateActiveFormats = useCallback(() => {
         const formats = new Set<string>();
 
@@ -418,7 +410,6 @@ const LessonPage = () => {
         }
     };
 
-    // Сохранение текущего выделения
     const saveSelection = useCallback(() => {
         const selection = window.getSelection();
         if (selection && selection.rangeCount > 0 && contentRef.current) {
@@ -429,7 +420,6 @@ const LessonPage = () => {
         }
     }, []);
 
-    // Восстановление сохраненного выделения
     const restoreSelection = useCallback(() => {
         if (savedSelectionRef.current && contentRef.current) {
             const selection = window.getSelection();
@@ -519,7 +509,6 @@ const LessonPage = () => {
                 updatedContent
             );
 
-            // Удаляем помеченные файлы
             for (const fileId of filesToDelete) {
                 const file = existingFiles.find(f => f.id === fileId);
                 if (file) {
@@ -531,7 +520,6 @@ const LessonPage = () => {
                 }
             }
 
-            // Загружаем новые файлы
             for (const file of newFiles) {
                 try {
                     await fileApi.post(lessonId, file);
@@ -573,6 +561,25 @@ const LessonPage = () => {
             setIsDeleteModalOpen(false);
         } finally {
             setIsDeleting(false);
+        }
+    };
+
+    const handleCompleteLesson = async () => {
+        if (!lessonId) return;
+
+        setIsCompleting(true);
+        setError(null);
+
+        try {
+            await lessonProgressApi.post(lessonId);
+            setIsCompleted(true);
+            setSuccessMessage("Урок успешно завершен!");
+            setTimeout(() => setSuccessMessage(null), 3000);
+        } catch (err) {
+            console.error("Failed to complete lesson:", err);
+            setError("Не удалось завершить урок");
+        } finally {
+            setIsCompleting(false);
         }
     };
 
@@ -651,9 +658,9 @@ const LessonPage = () => {
                             <div className="lesson-description-full">
                                 {formatDescription(lesson.description).split('\n').map((line, idx, arr) => (
                                     <span key={idx}>
-                        {line}
+                                        {line}
                                         {idx < arr.length - 1 && <br />}
-                    </span>
+                                    </span>
                                 ))}
                             </div>
                         )
@@ -677,7 +684,6 @@ const LessonPage = () => {
                             <p className="no-files">Нет прикрепленных файлов</p>
                         )}
 
-                        {/* Отображение существующих файлов */}
                         {(existingFiles.length > 0 || (isEditing && existingFiles.filter(f => !filesToDelete.includes(f.id)).length > 0)) && (
                             <div className="file-list">
                                 {existingFiles
@@ -713,7 +719,6 @@ const LessonPage = () => {
                             </div>
                         )}
 
-                        {/* Файлы, помеченные на удаление */}
                         {isEditing && filesToDelete.length > 0 && (
                             <div className="file-list deleted-files">
                                 <p className="deleted-files-label">Будут удалены:</p>
@@ -738,7 +743,6 @@ const LessonPage = () => {
                             </div>
                         )}
 
-                        {/* Новые файлы для загрузки */}
                         {isEditing && newFiles.length > 0 && (
                             <div className="file-list">
                                 {newFiles.map((file, index) => (
@@ -763,7 +767,6 @@ const LessonPage = () => {
                             </div>
                         )}
 
-                        {/* Кнопка добавления файлов при редактировании */}
                         {isEditing && (
                             <div className="file-upload-section">
                                 <input
@@ -1009,6 +1012,27 @@ const LessonPage = () => {
                     )}
                 </div>
             </div>
+
+            {/* Кнопка завершения урока для студента */}
+            {!isTeacher && !isEditing && (
+                <div className="lesson-complete-section">
+                    {successMessage && <div className="form-success">{successMessage}</div>}
+                    {isCompleted ? (
+                        <div className="lesson-completed-badge">
+                            <span className="completed-icon">✅</span>
+                            <span className="completed-text">Урок завершен</span>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={handleCompleteLesson}
+                            className="complete-lesson-button"
+                            disabled={isCompleting}
+                        >
+                            {isCompleting ? "Завершение..." : "Завершить урок"}
+                        </button>
+                    )}
+                </div>
+            )}
 
             <DeleteConfirmModal
                 isOpen={isDeleteModalOpen}

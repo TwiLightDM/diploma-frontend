@@ -28,6 +28,9 @@ export const courseApi = {
     getAll: () =>
         api.get<CourseListResponse>(`${COURSES}`),
 
+    getAvailable: () =>
+        api.get<CourseListResponse>(`${COURSES}/available`),
+
     getMy: () =>
         api.get<CourseListResponse>(`${COURSES}/my`),
 
